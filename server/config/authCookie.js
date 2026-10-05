@@ -1,12 +1,11 @@
 import { env } from './env.js'
 
-export const AUTH_COOKIE_NAME =
-  'portfolio_auth'
+export const AUTH_COOKIE_NAME = 'portfolio_auth'
 
 const baseCookieOptions = {
   httpOnly: true,
   secure: env.isProduction,
-  sameSite: 'lax',
+  sameSite: env.isProduction ? 'none' : 'lax',
   path: '/',
 }
 
