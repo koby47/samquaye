@@ -11,6 +11,7 @@ import {
 
 import MediaPicker from './MediaPicker.jsx'
 
+
 const EMPTY_FORM = {
   title: '',
   slug: '',
@@ -38,19 +39,23 @@ const EMPTY_FORM = {
   },
 }
 
+
 function createEmptyForm() {
   return {
     ...EMPTY_FORM,
+
     technologies: [],
     features: [],
     challenges: [],
     outcomes: [],
     gallery: [],
+
     seo: {
       ...EMPTY_FORM.seo,
     },
   }
 }
+
 
 function createSlug(value) {
   return value
@@ -60,22 +65,42 @@ function createSlug(value) {
     .replace(/^-+|-+$/g, '')
 }
 
-function normalizeProject(
-  project,
-) {
+
+/*
+ * The form keeps populated MediaAsset objects.
+ *
+ * This allows MediaPicker and the preview UI to use
+ * publicUrl, filename, dimensions, alt text, etc.
+ *
+ * Media objects are converted to ObjectIds only when
+ * the project is submitted.
+ */
+function normalizeProject(project) {
   if (!project) {
     return createEmptyForm()
   }
 
   return {
-    title: project.title || '',
-    slug: project.slug || '',
-    summary: project.summary || '',
+    title:
+      project.title || '',
+
+    slug:
+      project.slug || '',
+
+    summary:
+      project.summary || '',
+
     description:
       project.description || '',
-    problem: project.problem || '',
-    solution: project.solution || '',
-    role: project.role || '',
+
+    problem:
+      project.problem || '',
+
+    solution:
+      project.solution || '',
+
+    role:
+      project.role || '',
 
     technologies:
       Array.isArray(
@@ -113,20 +138,13 @@ function normalizeProject(
       project.category ||
       '',
 
-    /*
-     * Keep the populated MediaAsset
-     * object so the form can display
-     * its publicUrl, filename, alt text,
-     * dimensions, etc.
-     *
-     * It is converted to its MongoDB
-     * ObjectId only when submitting.
-     */
     coverImage:
       project.coverImage || null,
 
     gallery:
-      Array.isArray(project.gallery)
+      Array.isArray(
+        project.gallery,
+      )
         ? [...project.gallery]
         : [],
 
@@ -150,11 +168,12 @@ function normalizeProject(
         project.seo?.title || '',
 
       description:
-        project.seo
-          ?.description || '',
+        project.seo?.description ||
+        '',
     },
   }
 }
+
 
 function TextField({
   label,
@@ -237,6 +256,7 @@ function TextField({
   )
 }
 
+
 function TextAreaField({
   label,
   name,
@@ -317,6 +337,7 @@ function TextAreaField({
   )
 }
 
+
 function ArrayField({
   label,
   items,
@@ -327,42 +348,48 @@ function ArrayField({
   const [value, setValue] =
     useState('')
 
+  const safeItems =
+    Array.isArray(items)
+      ? items
+      : []
+
   function addItem() {
     const trimmedValue =
       value.trim()
 
     if (
       !trimmedValue ||
-      items.length >= maxItems
+      safeItems.length >= maxItems
     ) {
       return
     }
 
     onChange([
-      ...items,
+      ...safeItems,
       trimmedValue,
     ])
 
     setValue('')
   }
 
-  function handleKeyDown(
-    event,
-  ) {
+
+  function handleKeyDown(event) {
     if (event.key === 'Enter') {
       event.preventDefault()
       addItem()
     }
   }
 
+
   function removeItem(index) {
     onChange(
-      items.filter(
+      safeItems.filter(
         (_, itemIndex) =>
           itemIndex !== index,
       ),
     )
   }
+
 
   return (
     <div>
@@ -423,7 +450,8 @@ function ArrayField({
           type="button"
           onClick={addItem}
           disabled={
-            items.length >= maxItems
+            safeItems.length >=
+            maxItems
           }
           className="
             rounded-xl
@@ -444,7 +472,7 @@ function ArrayField({
         </button>
       </div>
 
-      {items.length > 0 && (
+      {safeItems.length > 0 && (
         <div
           className="
             mt-3
@@ -453,7 +481,7 @@ function ArrayField({
             gap-2
           "
         >
-          {items.map(
+          {safeItems.map(
             (item, index) => (
               <span
                 key={`${item}-${index}`}
@@ -477,7 +505,9 @@ function ArrayField({
                   onClick={() =>
                     removeItem(index)
                   }
-                  aria-label={`Remove ${item}`}
+                  aria-label={
+                    `Remove ${item}`
+                  }
                   className="
                     text-slate-400
                     transition
@@ -499,11 +529,13 @@ function ArrayField({
           text-slate-400
         "
       >
-        {items.length}/{maxItems}
+        {safeItems.length}/
+        {maxItems}
       </p>
     </div>
   )
 }
+
 
 function Section({
   title,
@@ -561,6 +593,7 @@ function Section({
   )
 }
 
+
 function ProjectForm({
   initialProject = null,
   onSubmit,
@@ -598,6 +631,7 @@ function ProjectForm({
     Boolean(initialProject),
   )
 
+
   useEffect(() => {
     setForm(
       normalizeProject(
@@ -609,6 +643,7 @@ function ProjectForm({
       Boolean(initialProject),
     )
   }, [initialProject])
+
 
   useEffect(() => {
     let active = true
@@ -657,6 +692,7 @@ function ProjectForm({
     }
   }, [])
 
+
   function handleFieldChange(
     event,
   ) {
@@ -668,14 +704,16 @@ function ProjectForm({
     } = event.target
 
     /*
-     * Title is handled in one state
-     * update so automatic slug
-     * generation stays predictable.
+     * Handle the title in one state
+     * update so automatic slug generation
+     * stays predictable.
      */
     if (name === 'title') {
       setForm((current) => ({
         ...current,
+
         title: value,
+
         ...(!slugTouched
           ? {
               slug:
@@ -697,6 +735,7 @@ function ProjectForm({
     }))
   }
 
+
   function handleSlugChange(
     event,
   ) {
@@ -711,19 +750,23 @@ function ProjectForm({
     }))
   }
 
+
   function updateArray(
     field,
     value,
   ) {
     setForm((current) => ({
       ...current,
-      [field]: value,
+
+      [field]:
+        Array.isArray(value)
+          ? value
+          : [],
     }))
   }
 
-  function updateSeo(
-    event,
-  ) {
+
+  function updateSeo(event) {
     const {
       name,
       value,
@@ -739,15 +782,22 @@ function ProjectForm({
     }))
   }
 
+
+  /*
+   * MediaPicker in single mode returns
+   * one MediaAsset object, not an array.
+   */
   function handleCoverChange(
-    assets,
+    asset,
   ) {
     setForm((current) => ({
       ...current,
+
       coverImage:
-        assets[0] || null,
+        asset || null,
     }))
   }
+
 
   function removeCoverImage() {
     setForm((current) => ({
@@ -756,28 +806,51 @@ function ProjectForm({
     }))
   }
 
+
+  /*
+   * MediaPicker in multiple mode returns
+   * an array of MediaAsset objects.
+   *
+   * Keep this defensive check so gallery
+   * can never become a non-array value.
+   */
   function handleGalleryChange(
     assets,
   ) {
     setForm((current) => ({
       ...current,
-      gallery: assets,
+
+      gallery:
+        Array.isArray(assets)
+          ? assets
+          : [],
     }))
   }
+
 
   function removeGalleryImage(
     index,
   ) {
-    setForm((current) => ({
-      ...current,
+    setForm((current) => {
+      const currentGallery =
+        Array.isArray(
+          current.gallery,
+        )
+          ? current.gallery
+          : []
 
-      gallery:
-        current.gallery.filter(
-          (_, itemIndex) =>
-            itemIndex !== index,
-        ),
-    }))
+      return {
+        ...current,
+
+        gallery:
+          currentGallery.filter(
+            (_, itemIndex) =>
+              itemIndex !== index,
+          ),
+      }
+    })
   }
+
 
   async function handleSubmit(
     event,
@@ -785,33 +858,70 @@ function ProjectForm({
     event.preventDefault()
 
     /*
-     * The UI stores complete MediaAsset
-     * objects for rendering previews.
+     * UI state contains complete
+     * MediaAsset objects.
      *
-     * The API receives only ObjectIds.
+     * API payload contains ObjectIds.
      */
+
     const coverImageId =
       form.coverImage
         ? typeof form.coverImage ===
           'string'
           ? form.coverImage
-          : form.coverImage._id
+          : form.coverImage?._id ||
+            null
         : null
 
+    const safeGallery =
+      Array.isArray(form.gallery)
+        ? form.gallery
+        : []
+
     const galleryIds =
-      form.gallery
+      safeGallery
         .map((asset) =>
-          typeof asset === 'string'
+          typeof asset ===
+          'string'
             ? asset
             : asset?._id,
         )
         .filter(Boolean)
 
+    const technologies =
+      Array.isArray(
+        form.technologies,
+      )
+        ? form.technologies
+        : []
+
+    const features =
+      Array.isArray(
+        form.features,
+      )
+        ? form.features
+        : []
+
+    const challenges =
+      Array.isArray(
+        form.challenges,
+      )
+        ? form.challenges
+        : []
+
+    const outcomes =
+      Array.isArray(
+        form.outcomes,
+      )
+        ? form.outcomes
+        : []
+
     const payload = {
       ...form,
 
       sortOrder:
-        Number(form.sortOrder) || 0,
+        Number(form.sortOrder) ||
+        0,
 
       category:
         form.category,
@@ -823,28 +933,28 @@ function ProjectForm({
         galleryIds,
 
       technologies:
-        form.technologies
+        technologies
           .map((item) =>
             item.trim(),
           )
           .filter(Boolean),
 
       features:
-        form.features
+        features
           .map((item) =>
             item.trim(),
           )
           .filter(Boolean),
 
       challenges:
-        form.challenges
+        challenges
           .map((item) =>
             item.trim(),
           )
           .filter(Boolean),
 
       outcomes:
-        form.outcomes
+        outcomes
           .map((item) =>
             item.trim(),
           )
@@ -852,15 +962,25 @@ function ProjectForm({
 
       seo: {
         title:
-          form.seo.title.trim(),
+          form.seo?.title
+            ?.trim() || '',
 
         description:
-          form.seo.description.trim(),
+          form.seo
+            ?.description
+            ?.trim() || '',
       },
     }
 
     await onSubmit(payload)
   }
+
+
+  const safeGallery =
+    Array.isArray(form.gallery)
+      ? form.gallery
+      : []
+
 
   return (
     <form
@@ -1037,6 +1157,7 @@ function ProjectForm({
         </div>
       </Section>
 
+
       {/* Case study */}
       <Section
         title="Case study"
@@ -1083,6 +1204,7 @@ function ProjectForm({
         </div>
       </Section>
 
+
       {/* Technologies and features */}
       <Section
         title="Technologies & features"
@@ -1119,7 +1241,9 @@ function ProjectForm({
 
           <ArrayField
             label="Challenges"
-            items={form.challenges}
+            items={
+              form.challenges
+            }
             onChange={(value) =>
               updateArray(
                 'challenges',
@@ -1145,28 +1269,27 @@ function ProjectForm({
         </div>
       </Section>
 
+
       {/* Media */}
       <Section
         title="Media"
         description="Select existing images from your Cloudflare R2 media library or upload new ones."
       >
-        <div className="space-y-8">
+        <div className="space-y-10">
+
           {/* Cover image */}
           <div>
             <MediaPicker
-              mode="single"
-              title="Cover image"
-              description="Select one image to represent this project across the portfolio."
-              selected={
+              value={
                 form.coverImage
-                  ? [
-                      form.coverImage,
-                    ]
-                  : []
               }
               onChange={
                 handleCoverChange
               }
+              multiple={false}
+              mediaType="image"
+              label="Cover image"
+              helpText="Select one image to represent this project across the portfolio."
             />
 
             {form.coverImage &&
@@ -1250,11 +1373,7 @@ function ProjectForm({
                       "
                     />
 
-                    <div
-                      className="
-                        p-3
-                      "
-                    >
+                    <div className="p-3">
                       <p
                         className="
                           truncate
@@ -1355,21 +1474,21 @@ function ProjectForm({
               )}
           </div>
 
-          {/* Gallery */}
+
+          {/* Project gallery */}
           <div>
             <MediaPicker
-              mode="multiple"
-              title="Project gallery"
-              description="Select screenshots or other images for the project detail page."
-              selected={
-                form.gallery
-              }
+              value={safeGallery}
               onChange={
                 handleGalleryChange
               }
+              multiple
+              mediaType="image"
+              label="Project gallery"
+              helpText="Select multiple screenshots or other images for the project detail page. Click a selected image again to deselect it."
             />
 
-            {form.gallery.length >
+            {safeGallery.length >
               0 && (
               <div className="mt-5">
                 <div
@@ -1407,7 +1526,7 @@ function ProjectForm({
                     "
                   >
                     {
-                      form.gallery
+                      safeGallery
                         .length
                     }
                   </span>
@@ -1422,7 +1541,7 @@ function ProjectForm({
                     xl:grid-cols-4
                   "
                 >
-                  {form.gallery.map(
+                  {safeGallery.map(
                     (
                       asset,
                       index,
@@ -1453,7 +1572,7 @@ function ProjectForm({
                         >
                           {typeof asset !==
                             'string' &&
-                          asset.publicUrl ? (
+                          asset?.publicUrl ? (
                             <img
                               src={
                                 asset.publicUrl
@@ -1518,7 +1637,8 @@ function ProjectForm({
 
                           {typeof asset !==
                             'string' &&
-                            asset.originalFilename && (
+                            asset
+                              ?.originalFilename && (
                               <div
                                 className="
                                   border-t
@@ -1537,11 +1657,13 @@ function ProjectForm({
                                     dark:text-slate-400
                                   "
                                   title={
-                                    asset.originalFilename
+                                    asset
+                                      .originalFilename
                                   }
                                 >
                                   {
-                                    asset.originalFilename
+                                    asset
+                                      .originalFilename
                                   }
                                 </p>
                               </div>
@@ -1556,6 +1678,7 @@ function ProjectForm({
           </div>
         </div>
       </Section>
+
 
       {/* Project links */}
       <Section
@@ -1594,6 +1717,7 @@ function ProjectForm({
           />
         </div>
       </Section>
+
 
       {/* Publishing */}
       <Section
@@ -1730,6 +1854,7 @@ function ProjectForm({
         </label>
       </Section>
 
+
       {/* SEO */}
       <Section
         title="SEO"
@@ -1758,6 +1883,7 @@ function ProjectForm({
           />
         </div>
       </Section>
+
 
       {/* Save actions */}
       <div
@@ -1838,5 +1964,6 @@ function ProjectForm({
     </form>
   )
 }
+
 
 export default ProjectForm
