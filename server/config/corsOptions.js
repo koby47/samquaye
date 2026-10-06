@@ -1,5 +1,10 @@
 import { env } from './env.js'
 
+const localOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]
+
 export const corsOptions = {
   origin(origin, callback) {
     // Allow requests that do not have a browser Origin header,
@@ -8,12 +13,20 @@ export const corsOptions = {
       return callback(null, true)
     }
 
-    // Allow only explicitly configured browser origins.
+    // Allow the local Vite development frontend by default.
+    if (localOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+
+    // Allow deployed frontend origins configured through CLIENT_URLS.
     if (env.clientUrls.includes(origin)) {
       return callback(null, true)
     }
 
-    const error = new Error('Origin not allowed by CORS')
+    const error = new Error(
+      'Origin not allowed by CORS',
+    )
+
     error.status = 403
 
     return callback(error)
