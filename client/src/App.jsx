@@ -13,6 +13,8 @@ import HomePage from './pages/public/HomePage.jsx'
 import ProjectsPage from './pages/public/ProjectsPage.jsx'
 import ProjectDetailPage from './pages/public/ProjectDetailPage.jsx'
 import ContactPage from './pages/public/ContactPage.jsx'
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage.jsx'
+import TermsOfUsePage from './pages/public/TermsOfUsePage.jsx'
 
 import AdminLoginPage from './pages/admin/AdminLoginPage.jsx'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx'
@@ -42,14 +44,22 @@ function App() {
 
         <Route
           path="/projects/:slug"
-          element={
-            <ProjectDetailPage />
-          }
+          element={<ProjectDetailPage />}
         />
 
         <Route
           path="/contact"
           element={<ContactPage />}
+        />
+
+        <Route
+          path="/privacy"
+          element={<PrivacyPolicyPage />}
+        />
+
+        <Route
+          path="/terms"
+          element={<TermsOfUsePage />}
         />
       </Route>
 
@@ -60,74 +70,54 @@ function App() {
       />
 
       {/* Protected admin */}
-      <Route
-        element={<ProtectedRoute />}
-      >
+      <Route element={<ProtectedRoute />}>
         <Route
           path="/admin"
           element={<AdminLayout />}
         >
           <Route
             index
-            element={
-              <AdminDashboardPage />
-            }
+            element={<AdminDashboardPage />}
           />
 
           <Route
             path="projects"
-            element={
-              <AdminProjectsPage />
-            }
+            element={<AdminProjectsPage />}
           />
 
           <Route
-  path="projects/new"
-  element={
-    <AdminProjectCreatePage />
-  }
-/>
+            path="projects/new"
+            element={<AdminProjectCreatePage />}
+          />
 
-<Route
-  path="projects/:id/edit"
-  element={
-    <AdminProjectEditPage />
-  }
-/>
+          <Route
+            path="projects/:id/edit"
+            element={<AdminProjectEditPage />}
+          />
 
           <Route
             path="categories"
-            element={
-              <AdminCategoriesPage />
-            }
+            element={<AdminCategoriesPage />}
           />
 
           <Route
             path="media"
-            element={
-              <AdminMediaPage />
-            }
+            element={<AdminMediaPage />}
           />
 
           <Route
             path="enquiries"
-            element={
-              <AdminEnquiriesPage />
-            }
+            element={<AdminEnquiriesPage />}
           />
 
           <Route
             path="settings"
-            element={
-              <AdminSettingsPage />
-            }
+            element={<AdminSettingsPage />}
           />
 
           <Route
             path="audit"
-            element={
-              <AdminAuditPage />
-            }
+            element={<AdminAuditPage />}
           />
         </Route>
       </Route>

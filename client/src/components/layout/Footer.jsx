@@ -52,7 +52,7 @@ function Footer() {
 
           <nav
             className="
-              flex flex-wrap gap-5
+              flex flex-wrap gap-x-5 gap-y-3
               text-sm
             "
             aria-label="Footer navigation"
@@ -81,6 +81,32 @@ function Footer() {
               "
             >
               Contact
+            </Link>
+
+            <Link
+              to="/privacy"
+              className="
+                text-slate-600
+                transition
+                hover:text-cyan-600
+                dark:text-slate-400
+                dark:hover:text-cyan-400
+              "
+            >
+              Privacy Policy
+            </Link>
+
+            <Link
+              to="/terms"
+              className="
+                text-slate-600
+                transition
+                hover:text-cyan-600
+                dark:text-slate-400
+                dark:hover:text-cyan-400
+              "
+            >
+              Terms of Use
             </Link>
           </nav>
         </div>
